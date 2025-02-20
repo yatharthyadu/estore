@@ -1,22 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./_cat-nav.scss";
+import { useSelector, useDispatch } from "react-redux";
+import { getCategories } from "../../Redux/Category/action";
 
 const CatNav = () => {
+  const categories = useSelector((state) => state.categoryReducer.categories);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, []);
+
+  console.log(categories);
   return (
     <div className="cat-nav-container container">
       <ul>
-        <li className="list-items">
-          <a href="#">Men</a>
-        </li>
-        <li className="list-items">
-          <a href="#">Women</a>
-        </li>
-        <li className="list-items">
-          <a href="#">Kids</a>
-        </li>
-        <li className="list-items">
-          <a href="#">Best Offers</a>
-        </li>
+        {categories.map((category) => {
+          return (
+            <li className="list-items">
+              <a href="#">{category}</a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
