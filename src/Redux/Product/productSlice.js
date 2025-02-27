@@ -1,40 +1,52 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { getProducts } from "./productAction";
 
-const initialState = [
-  {
-    pName: "Jacket",
-    price: 45,
-    img: "shop-1.jpg",
-  },
-  {
-    pName: "Purse",
-    price: 50,
-    img: "shop-2.jpg",
-  },
-  {
-    pName: "Dress",
-    price: 38,
-    img: "shop-3.jpg",
-  },
-  {
-    pName: "Denim",
-    price: 42,
-    img: "shop-4.jpg",
-  },
-  {
-    pName: "Boots",
-    price: 65,
-    img: "shop-5.jpg",
-  },
-  {
-    pName: "Boots2",
-    price: 65,
-    img: "shop-5.jpg",
-  },
-];
+const initialState = {
+  products: [], // Stores all products
+  filteredProducts: [], // Stores the filtered list
+  status: "idle",
+  error: "",
+};
 
 const productSlice = createSlice({
-  name: "Products",
+  name: "products",
   initialState,
+  reducers: {
+    filterProducts: (state, action) => {
+      console.log("action", action);
+      const filteredData = action.payload.products.filter((elem) => {
+        return elem.category_id === action.payload.selectedCategory.id;
+      });
+
+      state.products = filteredData;
+    },
+
+    filterByPrice: (state, action) => {
+      const filteredData = action.payload.products.filter((elem) => {
+        return (
+          elem.price >= action.payload.minPriceLimit &&
+          elem.price <= action.payload.maxPriceLimit
+        );
+      });
+      state.products = filteredData;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getProducts.pending, (state) => {
+        state.status = "Loading...";
+      })
+      .addCase(getProducts.fulfilled, (state, action) => {
+        state.status = "Success.";
+        state.products = action.payload;
+        state.filteredProducts = action.payload; // Initialize filteredProducts with all products
+      })
+      .addCase(getProducts.rejected, (state, action) => {
+        state.status = "Rejected!";
+        state.error = action.error.message;
+      });
+  },
 });
-export default productSlice;
+
+export const { filterProducts, filterByPrice } = productSlice.actions;
+export default productSlice.reducer;
